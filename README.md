@@ -1,4 +1,6 @@
 hey guys 
-this id madejej
-installation step
-           $ cd scammer.py
+installation steps
+     $ cd scammer.py
+     $ python3 scammer.py
+     $ 
+     
