@@ -1,6 +1,7 @@
-hey guys 
-installation steps
-         $ cd scammer.py
-         $ python3 scammer.py
-         $ 
-     
+## Installing (Kali Linux/Termux):
+
+```
+
+https://github.com/blackhatvenomm/Scammphisher.git
+cd scammphisher
+python3 scammer.py
